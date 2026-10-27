@@ -99,3 +99,9 @@ Tunable constants are at the top of `sim.js`: `BIO` (small fish), `SPECIES`,
 `PRED` and `PRED_SPECIES` (predators), `FOOD_TYPES` and `FOOD_DECAY` (food),
 `THERMAL` (temperature effects), `OPEN_SEA`, `REFUGE` (hiding places) and
 `SCENARIOS`.
+
+## License
+
+Released under the [MIT License](LICENSE). You're free to use, change and share
+Lumen, including in teaching materials and other projects, as long as you keep the
+copyright notice and license text with it.
