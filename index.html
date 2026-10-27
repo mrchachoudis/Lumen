@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aegean Fish Simulator</title>
+  <meta name="description" content="Interactive simulation of Aegean Sea fish, their predators and food, and how sea temperature changes them.">
+  <link rel="stylesheet" href="style.css?v=5">
+</head>
+<body>
+  <header class="top">
+    <h1>Aegean Fish Simulator</h1>
+    <p class="sub">
+      Native and invasive Aegean fish find food, grow, breed and die while bluefish and
+      lionfish hunt them. Each species eats different food, keeps to its own part of the
+      water and copes with a different range of sea temperatures. Babies inherit their
+      parent's speed and eyesight with small random changes, so the populations evolve.
+    </p>
+  </header>
+
+  <main class="layout">
+    <section class="stage">
+      <canvas id="tank" aria-label="Aegean Sea simulation"></canvas>
+      <p class="hint">Click or tap the water to drop feed pellets — every species eats them, as wild fish do around fish farms.</p>
+
+      <div class="panel">
+        <div class="chart-head">
+          <h2>Population over time</h2>
+          <div class="legend" id="legend"></div>
+        </div>
+        <canvas id="chart"></canvas>
+      </div>
+
+      <details class="panel guide">
+        <summary>About these species</summary>
+        <div class="guide-list" id="speciesGuide"></div>
+        <p class="note guide-note">Temperature ranges and behaviour are simplified for teaching.</p>
+      </details>
+    </section>
+
+    <aside class="sidebar">
+      <div class="panel">
+        <div class="buttons">
+          <button id="playBtn" class="primary">Pause</button>
+          <button id="resetBtn">Reset</button>
+        </div>
+
+        <div class="group">
+          <h2>Scenario</h2>
+          <select id="scenario" class="select" aria-label="Scenario"></select>
+          <p class="scenario-info" id="scenarioInfo"></p>
+          <p class="scenario-phase" id="scenarioPhase" aria-live="polite"></p>
+        </div>
+
+        <div class="group">
+          <h2>Simulation</h2>
+          <div class="control">
+            <label for="speed">Speed</label><output for="speed"></output>
+            <input type="range" id="speed" min="0.25" max="10" step="0.25" value="1">
+          </div>
+        </div>
+
+        <div class="group">
+          <h2>Starting conditions</h2>
+          <p class="note">Applied when you press Reset.</p>
+          <div class="species-pick" id="speciesPick" role="group" aria-label="Species to start with"></div>
+          <div class="control">
+            <label for="startFish">Starting fish</label><output for="startFish"></output>
+            <input type="range" id="startFish" min="1" max="300" step="1" value="40">
+          </div>
+          <div class="control">
+            <label for="startFood">Starting food</label><output for="startFood"></output>
+            <input type="range" id="startFood" min="0" max="400" step="10" value="120">
+          </div>
+          <div id="predStart"></div>
+        </div>
+
+        <div class="group">
+          <h2>Sea conditions</h2>
+          <div class="control">
+            <label for="temperature">Sea temperature</label><output for="temperature"></output>
+            <input type="range" id="temperature" min="0" max="40" step="0.5" value="20">
+          </div>
+          <div class="thermal" id="thermal" aria-label="Temperature range each species can live in"></div>
+          <div class="control">
+            <label for="foodRate">Food supply</label><output for="foodRate"></output>
+            <input type="range" id="foodRate" min="0" max="30" step="0.5" value="9">
+          </div>
+          <div class="control">
+            <label for="foodEnergy">Food nutrition</label><output for="foodEnergy"></output>
+            <input type="range" id="foodEnergy" min="5" max="80" step="1" value="30">
+          </div>
+          <div class="control">
+            <label for="maxFood">Max food in the water</label><output for="maxFood"></output>
+            <input type="range" id="maxFood" min="10" max="1000" step="10" value="500">
+          </div>
+          <label class="check"><input type="checkbox" id="foodFollowsTemp" checked> Food grows and dies off with temperature</label>
+          <label class="check"><input type="checkbox" id="openSea" checked> Open sea: fish can swim in from outside</label>
+        </div>
+
+        <div class="group">
+          <h2>Predators and hiding places</h2>
+          <div class="buttons wrap" id="predButtons"></div>
+          <div class="control">
+            <label for="preyEnergy">Energy per fish eaten</label><output for="preyEnergy"></output>
+            <input type="range" id="preyEnergy" min="10" max="80" step="1" value="35">
+          </div>
+          <div class="control">
+            <label for="refuges">Seagrass &amp; reefs</label><output for="refuges"></output>
+            <input type="range" id="refuges" min="0" max="6" step="1" value="3">
+          </div>
+          <label class="check"><input type="checkbox" id="fishFlee" checked> Fish flee from predators</label>
+        </div>
+
+        <div class="group">
+          <h2>Display</h2>
+          <label class="check"><input type="checkbox" id="showSense"> Show how far fish can see</label>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Fish</h2>
+        <dl class="stats">
+          <dt>Time</dt><dd id="statTime">0:00</dd>
+          <dt>Fish alive</dt><dd id="statFish">0</dd>
+        </dl>
+        <dl class="stats species-stats" id="speciesStats"></dl>
+        <dl class="stats">
+          <dt>Peak population</dt><dd id="statPeak">0</dd>
+          <dt>Births</dt><dd id="statBirths">0</dd>
+          <dt>Arrived from open sea</dt><dd id="statArrived">0</dd>
+          <dt>Died of starvation</dt><dd id="statStarved">0</dd>
+          <dt>Died of old age</dt><dd id="statOld">0</dd>
+          <dt>Eaten by predators</dt><dd id="statEaten">0</dd>
+          <dt>Escaped a strike (schooling)</dt><dd id="statMissed">0</dd>
+          <dt>Died of heat or cold</dt><dd id="statThermal">0</dd>
+          <dt>Latest generation</dt><dd id="statGen">1</dd>
+          <dt>Avg. top speed</dt><dd id="statSpeed">–</dd>
+          <dt>Avg. eyesight</dt><dd id="statSense">–</dd>
+        </dl>
+      </div>
+
+      <div class="panel">
+        <h2>Food in the water</h2>
+        <dl class="stats" id="foodStats"></dl>
+      </div>
+
+      <div class="panel">
+        <h2>Predators</h2>
+        <dl class="stats">
+          <dt>Predators alive</dt><dd id="statPred">0</dd>
+        </dl>
+        <dl class="stats species-stats" id="predStats"></dl>
+        <dl class="stats">
+          <dt>Peak predators</dt><dd id="statPredPeak">0</dd>
+          <dt>Births</dt><dd id="statPredBirths">0</dd>
+          <dt>Died of starvation</dt><dd id="statPredStarved">0</dd>
+          <dt>Died of old age</dt><dd id="statPredOld">0</dd>
+          <dt>Died of heat or cold</dt><dd id="statPredThermal">0</dd>
+        </dl>
+      </div>
+    </aside>
+  </main>
+
+  <script src="sim.js?v=5"></script>
+  <script src="main.js?v=5"></script>
+</body>
+</html>
