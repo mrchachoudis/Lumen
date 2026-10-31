@@ -86,6 +86,7 @@ the NW Mediterranean [8].
 |---|---|---|---|
 | tempOpt | 22 °C | High | Fastest juvenile growth at 22–25 °C; optimum culture 20–24 °C; some populations peak at 26 °C [9][10]. |
 | tempMin / tempMax | 3 / 32 °C | High | Lethal limits about 2–3 °C and 30–32 °C [10]. |
+| Breeding | winter, cool water | Medium | Natural ovulation only at about 9–17 °C [50]. |
 | Diet | "shellfish & worms" | Medium – simplified | Young fish eat mostly crustaceans (mysid shrimps), worms and molluscs [11]; **adults are mainly fish-eaters** where small fish are plentiful [12]. The model leaves out fish-eating. |
 
 ### Sea bream – *Sparus aurata* (native)
@@ -149,7 +150,7 @@ grazing stripped experimental reef plots of algae within a month [28].
 
 | Parameter | Value | Confidence | Evidence |
 |---|---|---|---|
-| temps | 11 / 22 / 31 °C | Medium | FishBase preferred range 13.3–25.8 °C, mean 19 °C [36]; spawns in the warmest weeks (25–26 °C at the surface) [37]. |
+| temps | 11 / 22 / 31 °C | Medium | FishBase preferred range 13.3–25.8 °C, mean 19 °C [36]; spawns in the warmest weeks (25–26 °C at the surface) [37]; late spring to late summer in the Balearics [51]. |
 | Life history | very slow | High | Long-lived, slow-growing, female first then male; spawning aggregations make it easy to overfish; on the IUCN Red List [38][39]. In the model it breeds the slowest of all predators. |
 | Behaviour | ambush, recognised by prey | Medium | Reef ambush hunter; native, so local fish react to it normally (unlike lionfish). |
 
@@ -232,3 +233,5 @@ grazing stripped experimental reef plots of algae within a month [28].
 47. 2024 marine heatwaves in Greek seas: [J. Marine Science and Engineering 12(11):2020](https://www.mdpi.com/2077-1312/12/11/2020)
 48. Fish metabolism and temperature (Clarke & Johnston 1999): [NERC Open Research Archive](https://nora.nerc.ac.uk/id/eprint/503085)
 49. Thermal performance curve shapes: [PMC11326125](https://pmc.ncbi.nlm.nih.gov/articles/PMC11326125)
+50. Sea bass spawning temperature range (natural ovulation at about 9–17 °C): [Ifremer](https://archimer.ifremer.fr/doc/00044/15542/12919.pdf)
+51. Grouper spawning season, Balearic Islands (late spring to late summer, peaks July–August): [AGRIS](https://agris.fao.org/search/en/records/64724d30e17b74d2224fbd53)
