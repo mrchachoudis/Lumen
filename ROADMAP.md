@@ -240,6 +240,11 @@ Claude should then:
 - **Browser caching**: the `?v=` numbers on the file links in `index.html` must be
   bumped by hand on every update, or visitors keep the old scripts. → Session 3.
 - **No automated tests yet**; balance has been checked with one-off scripts. → Session 4.
+- **More species = more bluefish**: the open-sea rescue tops up each rare species
+  separately, so with 7 prey species predators get more free food. → Session 5.
+- **Simplified diets**: adult sea bass really eat fish, and groupers and toadfish eat
+  a lot of octopus and crabs; here predators eat only fish and sea bass only bottom
+  food. Lionfish also breed far more slowly than real ones. See `MODEL.md`.
 - The species picker, legend and tolerance chart are built with `innerHTML` from the
   hard-coded species list. That's safe now, but must change once users can name their
   own species. → Session 19.
@@ -264,3 +269,22 @@ Claude should then:
   (5 °C cold snap, 6–26 °C seasons) wiped out too much to be useful for teaching, so
   they were softened. Default balance afterwards: fish survive 4/4 runs, predators
   1/4 over 20 minutes (same known issue as before).
+- **Research pass (2026-10-31):** Checked every species against the literature and
+  wrote `MODEL.md` (first part of Session 32) with a source and confidence level for
+  each number. Fixes: sea bream lower limit 6 → 5 °C; lionfish lower limit 14 → 13 °C
+  (lab-lethal 10 °C, but they stop eating at ~16 °C); heatwave text reworded ("most
+  intense" wasn't supported, "longest, most cumulative heat" is); warming rate
+  0.3–0.6 → 0.3–0.5 °C per decade; sea bass text now says adults eat fish (still left
+  out of the model). New: resting metabolism rises with temperature (Q10 = 2, set to 1
+  at each species' best temperature). New species: anchovy (summer-spawning partner
+  to the winter-spawning sardine), red mullet (third bottom feeder), parrotfish (native
+  grazer that competes with rabbitfish), dusky grouper (native reef ambush predator,
+  very slow breeding) and silver-cheeked toadfish (invasive pufferfish, arrives in
+  *Warming Aegean*). Balance, 5 runs × 15 min: at default settings all 7 fish species
+  and bluefish survive 5/5; *Aegean year*, *Heatwave* and *North Aegean* keep every
+  native species 5/5; lionfish now survive the *North Aegean* year 5/5 (was 2/5);
+  rabbitfish beat parrotfish in warm runs and lose in cool ones. Grouper first boomed
+  to ~20, so its breeding was slowed (cooldown 220 s, maturity 140 s); it now holds at
+  about 5 in every scenario. Not to plan: bluefish average ~25 at defaults (was ~14),
+  because the open-sea rescue now tops up 7 prey species; with the open sea off,
+  sardines and anchovies die out in every run at 20 °C.

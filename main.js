@@ -580,6 +580,16 @@
       // a row of spines
       fin([-L * 0.6, -H * 0.6, -L * 0.45, -H * 1.35, -L * 0.3, -H * 0.85, -L * 0.15, -H * 1.4,
            0, -H * 0.9, L * 0.15, -H * 1.35, L * 0.35, -H * 0.65], darkColor);
+    } else if (sp.id === 'anchovy') {
+      // one small fin in the middle of the back
+      fin([-L * 0.2, -H * 0.8, -L * 0.05, -H * 1.6, L * 0.1, -H * 0.85], darkColor);
+    } else if (sp.id === 'redmullet') {
+      // two well-separated dorsal fins
+      fin([-L * 0.05, -H * 0.85, L * 0.1, -H * 1.6, L * 0.3, -H * 0.8], darkColor);
+      fin([-L * 0.55, -H * 0.75, -L * 0.4, -H * 1.3, -L * 0.2, -H * 0.85], darkColor);
+    } else if (sp.id === 'parrotfish') {
+      // one long, low dorsal fin
+      fin([-L * 0.6, -H * 0.7, -L * 0.5, -H * 1.2, L * 0.3, -H * 1.15, L * 0.4, -H * 0.8], darkColor);
     }
 
     // Body
@@ -627,6 +637,56 @@
           ctx.arc(L * x, H * y, r * 0.12, 0, Math.PI * 2);
           ctx.fill();
         }
+      } else if (sp.id === 'anchovy') {
+        // dark back, a bright silver stripe along the side, and the long snout
+        // that overhangs the mouth
+        ctx.fillStyle = `hsla(${f.hue}, ${sat}%, ${light - 25}%, 0.75)`;
+        ctx.beginPath();
+        ctx.ellipse(0, -H * 0.45, L * 0.9, H * 0.4, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = `rgba(235, 240, 250, ${0.4 + 0.4 * health})`;
+        ctx.lineWidth = Math.max(1, H * 0.3);
+        ctx.beginPath();
+        ctx.moveTo(-L * 0.75, H * 0.05);
+        ctx.lineTo(L * 0.6, H * 0.05);
+        ctx.stroke();
+        ctx.fillStyle = bodyColor;
+        ctx.beginPath();
+        ctx.ellipse(L * 0.92, -H * 0.15, L * 0.18, H * 0.35, 0, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (sp.id === 'redmullet') {
+        // yellowish stripe along the side and two barbels under the chin
+        ctx.strokeStyle = `hsla(45, 80%, 65%, ${0.3 + 0.4 * health})`;
+        ctx.lineWidth = Math.max(1, H * 0.18);
+        ctx.beginPath();
+        ctx.moveTo(-L * 0.7, 0);
+        ctx.lineTo(L * 0.5, -H * 0.05);
+        ctx.stroke();
+        ctx.strokeStyle = `hsl(${f.hue}, ${sat}%, ${light + 20}%)`;
+        ctx.lineWidth = Math.max(0.8, r * 0.07);
+        const wiggle = Math.sin(f.phase * 2) * 0.1;
+        for (const dx of [0.62, 0.72]) {
+          ctx.beginPath();
+          ctx.moveTo(L * dx, H * 0.55);
+          ctx.lineTo(L * (dx + 0.05), H * (1.25 + wiggle));
+          ctx.stroke();
+        }
+      } else if (sp.id === 'parrotfish') {
+        // scale rows and a pale beak
+        ctx.strokeStyle = `hsla(${f.hue}, ${sat}%, ${light - 20}%, 0.45)`;
+        ctx.lineWidth = Math.max(0.7, r * 0.05);
+        for (let i = 0; i < 4; i++) {
+          ctx.beginPath();
+          ctx.arc(L * (-0.45 + i * 0.25), 0, H * 0.75, -Math.PI * 0.35, Math.PI * 0.35);
+          ctx.stroke();
+        }
+        ctx.fillStyle = 'rgba(240, 235, 215, 0.85)';
+        ctx.beginPath();
+        ctx.moveTo(L * 0.85, -H * 0.35);
+        ctx.lineTo(L * 1.08, 0);
+        ctx.lineTo(L * 0.85, H * 0.3);
+        ctx.closePath();
+        ctx.fill();
       }
       eye(L * 0.55, -H * 0.2, r * 0.2);
     }
@@ -723,9 +783,100 @@
     ctx.restore();
   }
 
+  function drawGrouper(p, r) {
+    const L = r * 1.8;
+    const H = r * 0.85;
+    const health = Math.max(0, Math.min(1, p.energy / p.bio.maxEnergy));
+    const body = `hsl(28, ${25 + 20 * health}%, ${26 + 10 * health}%)`;
+    const dark = `hsl(25, 30%, ${18 + 6 * health}%)`;
+
+    face(p);
+    // Rounded tail
+    ctx.save();
+    ctx.translate(-L * 0.85, 0);
+    ctx.rotate(Math.sin(p.phase) * 0.2);
+    ctx.fillStyle = dark;
+    ctx.beginPath();
+    ctx.ellipse(-L * 0.18, 0, L * 0.22, H * 0.7, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+    // Long spiny dorsal fin
+    fin([-L * 0.6, -H * 0.75, -L * 0.45, -H * 1.2, L * 0.25, -H * 1.15, L * 0.35, -H * 0.8], dark);
+    // Heavy brown body
+    ctx.fillStyle = body;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, L, H, 0, 0, Math.PI * 2);
+    ctx.fill();
+    // Pale blotches
+    ctx.save();
+    ctx.clip();
+    ctx.fillStyle = 'rgba(235, 215, 170, 0.35)';
+    for (const [x, y, s] of [[-0.5, -0.2, 0.2], [-0.15, 0.25, 0.24], [0.2, -0.3, 0.18], [-0.7, 0.3, 0.16], [0.35, 0.3, 0.15]]) {
+      ctx.beginPath();
+      ctx.ellipse(L * x, H * y, r * s, r * s * 0.7, 0.4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+    // Big mouth
+    ctx.strokeStyle = 'rgba(20, 10, 5, 0.75)';
+    ctx.lineWidth = r * 0.09;
+    ctx.beginPath();
+    ctx.moveTo(L * 0.99, H * 0.1);
+    ctx.lineTo(L * 0.62, H * 0.35);
+    ctx.stroke();
+    eye(L * 0.62, -H * 0.3, r * 0.15, p.hunting ? '#ff5a4f' : '#f2d36b');
+    ctx.restore();
+  }
+
+  function drawToadfish(p, r) {
+    const L = r * 1.9;
+    const H = r * 0.62;
+    const health = Math.max(0, Math.min(1, p.energy / p.bio.maxEnergy));
+    const back = `hsl(85, 18%, ${32 + 10 * health}%)`;
+
+    face(p);
+    // Small tail with a straight edge
+    ctx.save();
+    ctx.translate(-L * 0.88, 0);
+    ctx.rotate(Math.sin(p.phase) * 0.3);
+    fin([0, 0, -L * 0.3, -H * 0.9, -L * 0.3, H * 0.9], back);
+    ctx.restore();
+    // Small dorsal and anal fins set far back
+    fin([-L * 0.55, -H * 0.8, -L * 0.42, -H * 1.5, -L * 0.3, -H * 0.85], back);
+    fin([-L * 0.55, H * 0.8, -L * 0.42, H * 1.4, -L * 0.3, H * 0.85], 'rgba(220, 225, 230, 0.8)');
+    // Olive back with dark spots, silver cheeks and belly
+    ctx.fillStyle = `rgba(225, 232, 238, ${0.85 + 0.15 * health})`;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, L, H, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.save();
+    ctx.clip();
+    ctx.fillStyle = back;
+    ctx.beginPath();
+    ctx.ellipse(0, -H * 0.55, L * 1.05, H * 0.7, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(25, 30, 20, 0.55)';
+    for (let i = 0; i < 6; i++) {
+      ctx.beginPath();
+      ctx.arc(L * (-0.6 + i * 0.24), -H * (0.45 + 0.15 * (i % 2)), r * 0.07, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+    // Beak-like teeth that cut through nets
+    ctx.fillStyle = '#f4f1e6';
+    ctx.beginPath();
+    ctx.ellipse(L * 0.98, 0, r * 0.14, r * 0.1, 0, 0, Math.PI * 2);
+    ctx.fill();
+    eye(L * 0.6, -H * 0.3, r * 0.17, p.hunting ? '#ff5a4f' : '#9fd3a8');
+    ctx.restore();
+  }
+
   function drawPredator(p) {
     const r = p.radius * 1.4; // drawn a bit larger than its catch radius so it stands out
-    if (PRED_SPECIES[p.species].id === 'lionfish') drawLionfish(p, r);
+    const id = PRED_SPECIES[p.species].id;
+    if (id === 'lionfish') drawLionfish(p, r);
+    else if (id === 'grouper') drawGrouper(p, r);
+    else if (id === 'toadfish') drawToadfish(p, r);
     else drawBluefish(p, r);
   }
 
