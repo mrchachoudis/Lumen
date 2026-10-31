@@ -18,6 +18,7 @@ The plan for growing this into a full farm-vs-wild teaching simulator is in
 | `style.css`  | Styling (responsive down to phone width)                              |
 | `sim.js`     | The model: species, food, predators, temperature, scenarios. No drawing. |
 | `main.js`    | Drawing the sea and chart, wiring up the controls, main loop          |
+| `MODEL.md`   | Where every species number comes from, with sources and confidence    |
 
 ## Running it
 
@@ -47,37 +48,48 @@ instead of a cached copy.
 
 | Species | Greek | Status | Lives in | Best | Eats / hunts |
 |---|---|---|---|---|---|
-| Sardine (*Sardina pilchardus*) | Σαρδέλα | native | 9–27 °C | 15 °C | plankton; swims in schools |
+| Sardine (*Sardina pilchardus*) | Σαρδέλα | native | 9–27 °C | 15 °C | plankton; swims in schools; spawns in winter |
+| Anchovy (*Engraulis encrasicolus*) | Γαύρος | native | 8–29 °C | 21 °C | plankton; swims in schools; spawns in summer |
 | Sea bass (*Dicentrarchus labrax*) | Λαβράκι | native | 3–32 °C | 22 °C | shellfish & worms on the sea floor |
-| Sea bream (*Sparus aurata*) | Τσιπούρα | native | 6–33 °C | 25 °C | shellfish & worms on the sea floor |
+| Sea bream (*Sparus aurata*) | Τσιπούρα | native | 5–33 °C | 25 °C | shellfish & worms on the sea floor |
+| Red mullet (*Mullus barbatus*) | Κουτσομούρα | native | 8–28 °C | 19 °C | worms & crustaceans in the sand |
 | Rabbitfish (*Siganus luridus*) | Γερμανός | invasive | 14–35 °C | 27 °C | seaweed on reefs and seagrass |
+| Parrotfish (*Sparisoma cretense*) | Σκάρος | native | 12–31 °C | 24 °C | seaweed on reefs; competes with rabbitfish |
 | Bluefish (*Pomatomus saltatrix*) | Γοφάρι | native predator | 10–30 °C | 22 °C | chases fish in open water |
-| Lionfish (*Pterois miles*) | Λεοντόψαρο | invasive predator | 14–34 °C | 27 °C | ambushes fish around reefs |
+| Lionfish (*Pterois miles*) | Λεοντόψαρο | invasive predator | 13–34 °C | 27 °C | ambushes fish around reefs; prey react late |
+| Dusky grouper (*Epinephelus marginatus*) | Ροφός | native predator | 11–31 °C | 22 °C | ambushes fish around reefs; breeds very slowly |
+| Silver-cheeked toadfish (*Lagocephalus sceleratus*) | Λαγοκέφαλος | invasive predator | 13–33 °C | 27 °C | chases fish in open water |
 
-The ranges are simplified for teaching, not exact limits.
+The ranges are simplified for teaching, not exact limits. [MODEL.md](MODEL.md) gives
+the source for each number and how confident we can be in it.
 
 ## How the model works
 
 - **Energy**: every fish burns energy constantly. Faster fish (more muscle) and
   better eyesight cost more to maintain, and swimming costs rise with the cube of
   speed, like drag in real water.
+- **Metabolism and temperature**: a fish's resting energy use doubles for every
+  10 °C warmer (Q10 = 2), measured from its best temperature. Warm water makes
+  cool-water fish hungry; cold water lets fish get by on very little food.
 - **Food**: plankton drifts in open water, seaweed grows on reefs and seagrass, and
   shellfish & worms live on the sand. Each grows at its own rate depending on the
   sea temperature (plankton is most plentiful in cool water, as in the Aegean spring
   bloom) and dies off faster when warm. Each species eats only its own foods, which
   lets them live side by side. Clicking the water drops feed pellets that every
   species eats.
-- **Depth zones**: sardines keep to the upper water, sea bass and sea bream to the
-  bottom, and rabbitfish stay around the reefs where their seaweed grows.
+- **Depth zones**: sardines and anchovies keep to the upper water, sea bass, sea
+  bream and red mullet to the bottom, and rabbitfish and parrotfish stay around the
+  reefs where their seaweed grows.
 - **Breeding**: an adult with enough energy produces a baby. Sardines live fast
   (mature young, breed often, die young); sea bass and sea bream are slower.
 - **Inheritance**: babies copy their parent's species, speed and eyesight with small
   random mutations, so traits evolve.
-- **Predators**: bluefish chase fish in open water and lunge when close; lionfish
-  lurk around reefs, can hunt inside them, and local fish react to them late. Both
+- **Predators**: bluefish and toadfish chase fish in open water and lunge when
+  close; lionfish and groupers lurk around reefs and can hunt inside them. Local
+  fish react late to lionfish, which are newcomers, but not to native groupers. Both
   rest after each catch, breed slowly and starve if they can't eat. Predators favour
   whichever species is most common, which lets rare species recover.
-- **Schooling**: sardines swim in schools, and a strike at a sardine in a school
+- **Schooling**: sardines and anchovies swim in schools, and a strike at a sardine in a school
   often misses (the "confusion effect").
 - **Hiding places**: Posidonia seagrass meadows and rocky reefs, each sheltering a
   limited number of fish from bluefish.
@@ -90,7 +102,7 @@ The ranges are simplified for teaching, not exact limits.
 - **Scenarios** change the temperature live without resetting the fish: *Aegean
   year* (15–26 °C, one year = 4 minutes), *Marine heatwave* (25 → 31 °C), *North
   Aegean year* (11–25 °C, lionfish arrive) and *Warming Aegean* (+1 °C every 25
-  seconds from 16 °C, invaders arrive once it's warm). Moving the temperature slider
+  seconds from 16 °C; lionfish, toadfish and rabbitfish arrive once it's warm). Moving the temperature slider
   by hand switches back to manual control. The strip along the top of the chart
   shows the temperature over time.
 - **Death**: starvation, old age, being eaten, or heat/cold stress.
@@ -98,7 +110,7 @@ The ranges are simplified for teaching, not exact limits.
 Tunable constants are at the top of `sim.js`: `BIO` (small fish), `SPECIES`,
 `PRED` and `PRED_SPECIES` (predators), `FOOD_TYPES` and `FOOD_DECAY` (food),
 `THERMAL` (temperature effects), `OPEN_SEA`, `REFUGE` (hiding places) and
-`SCENARIOS`.
+`SCENARIOS`. The source for each species number is in [MODEL.md](MODEL.md).
 
 ## License
 

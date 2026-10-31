@@ -41,7 +41,8 @@
   // Aegean fish and the sea temperatures they can live in (degrees C). `depth` is
   // the part of the water column a species keeps to (0 = surface, 1 = sea floor),
   // and `diet` the foods it eats (see FOOD_TYPES). The temperature ranges
-  // are simplified from published figures and field ranges, not exact limits.
+  // are simplified from published figures and field ranges, not exact limits;
+  // MODEL.md lists the source behind each number.
   // Fish do best at tempOpt, become sluggish and breed less towards the limits,
   // and suffer fatal stress outside them.
   const SPECIES = [
@@ -51,25 +52,45 @@
       // Lives fast: grows up quickly, breeds often, dies young, so it survives heavy predation.
       bio: { maturityAge: 6, breedCooldown: 5, lifespanMin: 45, lifespanMax: 65 },
       schools: true, // swims in schools, which confuses predators
-      fact: 'Small schooling fish that eats plankton and prefers cooler water. In the Aegean it spawns in late autumn and winter.',
+      fact: 'Small schooling fish that eats plankton and prefers cooler water. In the Aegean it spawns from November to April, peaking in February, at about 13–18 °C.',
+    },
+    {
+      id: 'anchovy', name: 'Anchovy', greek: 'Γαύρος', latin: 'Engraulis encrasicolus', origin: 'native',
+      hue: 245, tempMin: 8, tempOpt: 21, tempMax: 29, body: 0.45, diet: ['plankton'], depth: [0.05, 0.6],
+      // Even faster life than the sardine: matures in its first year, rarely lives past four.
+      bio: { maturityAge: 5, breedCooldown: 4, lifespanMin: 35, lifespanMax: 55 },
+      schools: true,
+      fact: 'The sardine\'s summer twin: both eat plankton and swim in schools, but the anchovy spawns in the warm months (May–October in the north Aegean, peaking at about 21–23 °C). Greece\'s most valuable small fish catch.',
     },
     {
       id: 'seabass', name: 'Sea bass', greek: 'Λαβράκι', latin: 'Dicentrarchus labrax', origin: 'native',
       hue: 170, tempMin: 3, tempOpt: 22, tempMax: 32, body: 0.75, diet: ['benthos'], depth: [0.6, 1],
       bio: { maturityAge: 12, breedCooldown: 10, lifespanMin: 90, lifespanMax: 120 },
-      fact: 'Copes with a very wide range of temperatures. One of the two fish Greece farms most.',
+      fact: 'Copes with a very wide range of temperatures (about 2–32 °C). Young sea bass eat shrimp, crabs and worms; adults also hunt small fish, which this model leaves out. One of the two fish Greece farms most.',
     },
     {
       id: 'seabream', name: 'Sea bream', greek: 'Τσιπούρα', latin: 'Sparus aurata', origin: 'native',
-      hue: 45, tempMin: 6, tempOpt: 25, tempMax: 33, body: 1.0, diet: ['benthos'], depth: [0.7, 1],
+      hue: 45, tempMin: 5, tempOpt: 25, tempMax: 33, body: 1.0, diet: ['benthos'], depth: [0.7, 1],
       bio: { maturityAge: 12, breedCooldown: 10, lifespanMin: 90, lifespanMax: 120 },
-      fact: 'Named for the gold band between its eyes. Greece\'s other main farmed fish; it eats very little when the sea drops below about 13 °C.',
+      fact: 'Named for the gold band between its eyes. Crushes mussels and crabs with strong teeth. Starts life as a male and turns female later. Greece\'s other main farmed fish; it nearly stops eating below about 13 °C ("winter syndrome") and dies below about 5 °C.',
+    },
+    {
+      id: 'redmullet', name: 'Red mullet', greek: 'Κουτσομούρα', latin: 'Mullus barbatus', origin: 'native',
+      hue: 8, tempMin: 8, tempOpt: 19, tempMax: 28, body: 0.7, diet: ['benthos'], depth: [0.85, 1],
+      bio: { maturityAge: 8, breedCooldown: 7, lifespanMin: 60, lifespanMax: 85 },
+      fact: 'Feels through the sand for worms and small crustaceans with two barbels under its chin. Matures at one year old and spawns in spring and summer. When the bottom water passes about 27 °C it moves deeper.',
     },
     {
       id: 'rabbitfish', name: 'Rabbitfish', greek: 'Γερμανός', latin: 'Siganus luridus', origin: 'invasive',
       hue: 285, tempMin: 14, tempOpt: 27, tempMax: 35, body: 0.95, diet: ['seaweed'], depth: [0.75, 1],
       reefs: true, // stays around reefs and seagrass, where its seaweed grows
-      fact: 'Arrived from the Red Sea through the Suez Canal. Grazes on seaweed and has venomous spines. Warm-water fish that gains ground as the Aegean heats up.',
+      fact: 'Arrived from the Red Sea through the Suez Canal. Grazes on seaweed and has venomous spines. Spawns in summer (May–August). Its spread is limited by winter sea temperatures, so it gains ground as the Aegean heats up.',
+    },
+    {
+      id: 'parrotfish', name: 'Parrotfish', greek: 'Σκάρος', latin: 'Sparisoma cretense', origin: 'native',
+      hue: 330, tempMin: 12, tempOpt: 24, tempMax: 31, body: 0.9, diet: ['seaweed'], depth: [0.7, 1],
+      reefs: true,
+      fact: 'The Mediterranean\'s own parrotfish, grazing algae off rocks with its beak. Rabbitfish compete with it for the same rocky reefs. A warm-water native, it has been spreading north as the sea warms and has now reached the north Aegean.',
     },
   ];
 
@@ -85,11 +106,28 @@
       fact: 'Fast, aggressive hunter that chases schools of small fish in open water.',
     },
     {
+      // tempMin is 13, not the lab-lethal 10 °C: lionfish stop eating at about
+      // 16 °C and none were seen feeding below 13 °C, so colder water starves them.
       id: 'lionfish', name: 'Lionfish', greek: 'Λεοντόψαρο', latin: 'Pterois miles', origin: 'invasive',
-      color: '#ff9ecb', tempMin: 14, tempOpt: 27, tempMax: 34,
+      color: '#ff9ecb', tempMin: 13, tempOpt: 27, tempMax: 34,
       speed: 45, sense: 110, preyAlert: 0.3, ambush: true,
       bio: { lungeRange: 30, lungeBoost: 2.6, turnRate: 3.5, cruiseSpeed: 12, breedCooldown: 35 },
-      fact: 'Came from the Red Sea and is now established in the southern and central Aegean. Hunts slowly around reefs, and local fish don\'t recognise it as a danger. Cold winters (below about 15 °C) limit how far north it spreads.',
+      fact: 'Came from the Red Sea, first recorded in Greece in 2015, and now established in the southern and central Aegean. Hunts slowly around reefs, and local fish don\'t recognise it as a danger. It survives down to about 10 °C but stops eating at around 16 °C, so cold winters limit how far north it spreads.',
+    },
+    {
+      id: 'grouper', name: 'Dusky grouper', greek: 'Ροφός', latin: 'Epinephelus marginatus', origin: 'native',
+      color: '#d4a25f', tempMin: 11, tempOpt: 22, tempMax: 31,
+      speed: 50, sense: 120, preyAlert: 1, ambush: true,
+      // Big, slow-growing and long-lived: breeds even more slowly than the other predators.
+      bio: { lungeRange: 35, lungeBoost: 2.4, turnRate: 3, cruiseSpeed: 10, breedCooldown: 220,
+             maturityAge: 140, lifespanMin: 260, lifespanMax: 340 },
+      fact: 'The native reef ambush hunter, eating octopus, crabs and fish from a home cave. Unlike the lionfish, local fish know to avoid it. Starts life as a female and turns male when large and old. Slow growth and long life made it easy to overfish; it is a threatened species (IUCN Red List).',
+    },
+    {
+      id: 'toadfish', name: 'Silver-cheeked toadfish', greek: 'Λαγοκέφαλος', latin: 'Lagocephalus sceleratus', origin: 'invasive',
+      color: '#c9d3dc', tempMin: 13, tempOpt: 27, tempMax: 33,
+      speed: 80, sense: 140, preyAlert: 1, ambush: false,
+      fact: 'A pufferfish from the Red Sea, in Greek waters since 2005 and now found from Crete to the north Aegean. Eats fish, crustaceans, cuttlefish and octopus, and bites through fishing nets and lines. Its flesh holds tetrodotoxin, a poison that cooking does not destroy, so it must never be eaten.',
     },
   ];
 
@@ -153,7 +191,7 @@
     {
       id: 'heatwave',
       name: 'Marine heatwave',
-      info: 'A 25 °C summer sea heats to 31 °C for a minute, then cools. Summer 2024 brought the longest and most intense marine heatwaves on record to Greek seas. Watch the sardines and the bluefish.',
+      info: 'A 25 °C summer sea heats to 31 °C for a minute, then cools. In summer 2024 Greek seas had their longest marine heatwaves on record, with the most heat built up over the season. Watch the sardines and the bluefish.',
       temperature: t => t < 40 ? 25 : t < 70 ? lerp(25, 31, (t - 40) / 30) : t < 130 ? 31 : lerp(31, 25, (t - 130) / 30),
       phase: t => t < 40 ? 'Before the heatwave' : t < 70 ? 'Heating up' : t < 130 ? 'Heatwave' : t < 160 ? 'Cooling down' : 'After the heatwave',
     },
@@ -170,13 +208,13 @@
     {
       id: 'warming',
       name: 'Warming Aegean (sped up)',
-      info: 'Aegean surface water is warming by roughly 0.3–0.6 °C per decade. Here it warms 1 °C every 25 seconds, from 16 °C. Invaders from the south arrive once the sea is warm enough. Which native fish give way?',
+      info: 'Aegean surface water has been warming by roughly 0.3–0.5 °C per decade since the 1980s. Here it warms 1 °C every 25 seconds, from 16 °C. Invaders from the south arrive once the sea is warm enough. Which native fish give way?',
       temperature: t => Math.min(32, 16 + t / 25),
       phase: t => `+${Math.min(16, t / 25).toFixed(1)} °C since the start`,
       events: [
         {
-          at: 150, label: 'Warmer water: lionfish and rabbitfish arrive from the south',
-          run: sim => { sim.addPredators('lionfish', 3); sim.addFish('rabbitfish', 6); },
+          at: 150, label: 'Warmer water: lionfish, toadfish and rabbitfish arrive from the south',
+          run: sim => { sim.addPredators('lionfish', 3); sim.addPredators('toadfish', 2); sim.addFish('rabbitfish', 6); },
         },
       ],
     },
@@ -190,6 +228,12 @@
     slowest: 0.4,        // top speed multiplier at the edge of the tolerable range
     stressCost: 2,       // extra energy per second outside the range...
     stressPerDegree: 1,  // ...plus this much per degree beyond it
+    // Resting metabolism (the energy a fish burns just staying alive) rises with
+    // temperature. Q10 = how many times faster it runs for every 10 degrees
+    // warmer; about 2 for fish. It is set to 1 at each species' best temperature,
+    // so warm water makes cool-water fish hungrier and cold water lets fish
+    // get by on little food.
+    q10: 2,
   };
 
   // How well a species performs at temperature T: perf 1 at its optimum,
@@ -201,6 +245,12 @@
       ? (sp.tempOpt - T) / (sp.tempOpt - sp.tempMin)
       : (T - sp.tempOpt) / (sp.tempMax - sp.tempOpt);
     return { perf: 1 - x * x, stress: 0 };
+  }
+
+  // How fast resting metabolism runs at temperature T, relative to the
+  // species' best temperature (see THERMAL.q10).
+  function metabolism(sp, T) {
+    return clamp(Math.pow(THERMAL.q10, (T - sp.tempOpt) / 10), 0.25, 4);
   }
 
   // Hiding places: Posidonia seagrass meadows and rocky reefs on the sea floor.
@@ -263,14 +313,14 @@
     foodRate: 9,         // natural food appearing per second (all kinds together)
     foodEnergy: 30,      // energy gained per bite
     maxFood: 500,        // most food in the water, shared out between the kinds
-    startPredators: { bluefish: 3, lionfish: 0 },
+    startPredators: { bluefish: 3, lionfish: 0, grouper: 0, toadfish: 0 },
     preyEnergy: 35,      // energy a predator gains per fish eaten
     fishFlee: true,      // do fish try to escape predators?
     refuges: 3,          // number of hiding places
     openSea: true,       // fish and predators can swim in from the surrounding sea
     temperature: 20,     // water temperature, degrees C (set by the scenario, if one is running)
     foodFollowsTemp: true, // food growth and die-off depend on temperature
-    species: { sardine: true, seabass: true, seabream: true, rabbitfish: true }, // which fish to start with
+    species: { sardine: true, anchovy: true, seabass: true, seabream: true, redmullet: true, rabbitfish: true, parrotfish: true }, // which fish to start with
     maxFish: 1000,       // hard caps to keep the browser responsive
     maxPredators: 150,
   };
@@ -545,6 +595,8 @@
       const T = this.settings.temperature;
       this.thermal = SPECIES.map(sp => thermal(sp, T));
       this.predThermal = PRED_SPECIES.map(sp => thermal(sp, T));
+      this.metabolism = SPECIES.map(sp => metabolism(sp, T));
+      this.predMetabolism = PRED_SPECIES.map(sp => metabolism(sp, T));
     }
 
     // Start a scenario from the current moment, without resetting the fish.
@@ -827,8 +879,10 @@
       const v = swim(f, dir[0] / dl + sx * 1.5, dir[1] / dl + sy * 1.5, desiredSpeed, BIO.turnRate, dt);
 
       // Energy use: staying alive, plus upkeep of muscles (fast fish) and eyes,
-      // plus swimming, whose cost rises with the cube of speed like drag in real water.
-      f.energy -= (0.2 + f.speed * 0.006 + f.sense * 0.004 + Math.pow(v / 60, 3) * 0.9) * dt;
+      // all faster in warmer water, plus swimming, whose cost rises with the
+      // cube of speed like drag in real water.
+      const upkeep = (0.2 + f.speed * 0.006 + f.sense * 0.004) * this.metabolism[f.species];
+      f.energy -= (upkeep + Math.pow(v / 60, 3) * 0.9) * dt;
       if (th.stress) f.energy -= (THERMAL.stressCost + th.stress * THERMAL.stressPerDegree) * dt;
 
       if (f.energy <= 0) {
@@ -963,7 +1017,8 @@
       const dl = Math.hypot(dir[0], dir[1]) || 1;
       const v = swim(p, dir[0] / dl + sx, dir[1] / dl + sy, desiredSpeed, bio.turnRate, dt);
 
-      p.energy -= (0.4 + p.speed * 0.005 + p.sense * 0.002 + Math.pow(v / 80, 3) * 1.5) * dt;
+      const upkeep = (0.4 + p.speed * 0.005 + p.sense * 0.002) * this.predMetabolism[p.species];
+      p.energy -= (upkeep + Math.pow(v / 80, 3) * 1.5) * dt;
       // Predators carry more energy, so stress drains them twice as fast.
       if (th.stress) p.energy -= (THERMAL.stressCost + th.stress * THERMAL.stressPerDegree) * 2 * dt;
 
@@ -1101,5 +1156,5 @@
     }
   }
 
-  global.FishSim = { Simulation, BIO, PRED, REFUGE, OPEN_SEA, SPECIES, PRED_SPECIES, FOOD_TYPES, PELLETS, SCENARIOS, thermal, DEFAULT_SETTINGS, WORLD_W, WORLD_H, SAND_H, FLOOR };
+  global.FishSim = { Simulation, BIO, PRED, REFUGE, OPEN_SEA, SPECIES, PRED_SPECIES, FOOD_TYPES, PELLETS, SCENARIOS, THERMAL, thermal, metabolism, DEFAULT_SETTINGS, WORLD_W, WORLD_H, SAND_H, FLOOR };
 })(typeof window !== 'undefined' ? window : globalThis);
